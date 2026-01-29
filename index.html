@@ -675,6 +675,9 @@
               <div class="timer" id="timerText">05:00</div>
               <p class="micro" id="microLine">Chỉ 5 phút thôi.</p>
               <p class="focusNote" id="focusFooter"></p>
+              <div class="btnRow" id="focusControls" style="margin-top:10px">
+                <button class="btn" id="pauseBtn" style="display:none;min-width:160px">Tạm dừng</button>
+              </div>
             </div>
           </div>
 
@@ -808,7 +811,7 @@
               </div>
 
               <p class="focusNote" style="margin:0">
-                * Nhạc nền: “SolusLunes – Solus- Endless Space” (CC BY 3.0). :contentReference[oaicite:1]{index=1}
+                * Nhạc nền: “SolusLunes – Solus- Endless Space” (CC BY 3.0). 
               </p>
             </div>
           </div>
@@ -862,7 +865,7 @@
         active: "home",
         taskName: "",
         mode: "none", // five | pomoWork | pomoBreak | none
-        timer: { running:false, startMs:0, endMs:0, durationMs:0 },
+        timer: {  running:false,  paused:false,  remainMs:0,  startMs:0,  endMs:0,  durationMs:0,  onEnd:null},
         rafId: null,
         _lastSec: null,
         pomo: { workMin:25, breakMin:5, noPause:true, workIndex:0 },
@@ -1139,60 +1142,144 @@
       };
 
       // ===== Timer =====
-      const startTimer = ({mode, durationMs, onEnd}) => {
-        app.mode = mode;
-        app.timer.running = true;
-        app.timer.startMs = now();
-        app.timer.durationMs = durationMs;
-        app.timer.endMs = app.timer.startMs + durationMs;
-        app._lastSec = null;
+      const updatePauseUI = () => {
+      const btn = $("#pauseBtn");
+      if(!btn) return;
 
-        if(mode === "five" || mode === "pomoWork"){
-          app.lastFocusStartMs = app.timer.startMs;
-          app.lastFocusPlannedMs = durationMs;
-        }else{
-          app.lastFocusStartMs = 0;
-          app.lastFocusPlannedMs = 0;
-        }
+      const inPomo = (app.mode === "pomoWork" || app.mode === "pomoBreak");
+      const allowed = inPomo && !app.pomo.noPause;
 
-        const timerEl = $("#timerText");
+      btn.style.display = (allowed && (app.timer.running || app.timer.paused)) ? "inline-flex" : "none";
+      btn.textContent = app.timer.paused ? "Tiếp tục" : "Tạm dừng";
+      };
 
-        const tick = () => {
+      const runTimerLoop = () => {
+      const timerEl = $("#timerText");
+
+      const tick = () => {
+          if(!app.timer.running) return;
+ 
           const remain = Math.max(0, app.timer.endMs - now());
           timerEl.textContent = msToMMSS(remain);
 
           const sec = Math.ceil(remain / 1000);
           if(app._lastSec !== sec){
-            app._lastSec = sec;
-            timerEl.classList.remove("pulse");
-            void timerEl.offsetWidth;
-            timerEl.classList.add("pulse");
+          app._lastSec = sec;
+          timerEl.classList.remove("pulse");
+          void timerEl.offsetWidth;
+          timerEl.classList.add("pulse");
           }
+  
           if(remain > 0 && remain <= 10_000) timerEl.classList.add("urgent");
           else timerEl.classList.remove("urgent");
-
+  
           updateStatusPill();
-
+ 
           if(remain <= 0){
-            app.timer.running = false;
-            timerEl.classList.remove("urgent");
-            stopLoop();
-            endCurrentFocusSegment();
-            onEnd && onEnd();
-            return;
-          }
-          app.rafId = requestAnimationFrame(tick);
-        };
-
-        stopLoop();
-        tick();
-      };
-
-      const stopSession = async ({toSummary=false}={}) => {
-        if(app.timer.running){
           app.timer.running = false;
+          app.timer.paused = false;
+          timerEl.classList.remove("urgent");
           stopLoop();
           endCurrentFocusSegment();
+          updatePauseUI();
+          app.timer.onEnd && app.timer.onEnd();
+          return;
+          }
+  
+          app.rafId = requestAnimationFrame(tick);
+      };
+  
+      stopLoop();
+      tick();
+      };
+
+      const startTimer = ({mode, durationMs, onEnd}) => {
+      app.mode = mode;
+ 
+      app.timer.running = true;
+      app.timer.paused = false;
+      app.timer.remainMs = 0;
+      app.timer.onEnd = onEnd || null;
+
+      app.timer.startMs = now();
+      app.timer.durationMs = durationMs;
+      app.timer.endMs = app.timer.startMs + durationMs;
+      app._lastSec = null;
+ 
+      if(mode === "five" || mode === "pomoWork"){
+          app.lastFocusStartMs = app.timer.startMs;
+          app.lastFocusPlannedMs = durationMs;
+      }else{
+          app.lastFocusStartMs = 0;
+          app.lastFocusPlannedMs = 0;
+      }
+  
+      updatePauseUI();
+      runTimerLoop();
+      };
+
+      // ===== Pause / Resume (Pomodoro only) =====
+      const pauseTimer = async () => {
+        // no pause in 5-min phase
+        if(app.mode === "five") return;
+
+        const inPomo = (app.mode === "pomoWork" || app.mode === "pomoBreak");
+        if(!inPomo) return;
+        if(app.pomo.noPause) return;
+        if(!app.timer.running) return;
+
+        app.timer.remainMs = Math.max(0, app.timer.endMs - now());
+        app.timer.running = false;
+        app.timer.paused = true;
+
+        stopLoop();
+
+        // nếu đang Work thì cộng dồn thời gian đã tập trung tới thời điểm pause
+        if(app.mode === "pomoWork") endCurrentFocusSegment();
+
+        await sfx("click");
+        showToast("Đã tạm dừng");
+        updatePauseUI();
+      };
+
+      const resumeTimer = async () => {
+        const inPomo = (app.mode === "pomoWork" || app.mode === "pomoBreak");
+        if(!inPomo) return;
+        if(app.pomo.noPause) return;
+        if(!app.timer.paused) return;
+
+        app.timer.paused = false;
+        app.timer.running = true;
+        app.timer.startMs = now();
+        app.timer.endMs = app.timer.startMs + app.timer.remainMs;
+        app._lastSec = null;
+
+        // resume Work -> bắt đầu lại segment tập trung từ thời điểm resume
+        if(app.mode === "pomoWork"){
+          app.lastFocusStartMs = app.timer.startMs;
+          app.lastFocusPlannedMs = app.timer.remainMs;
+        }
+
+        await sfx("click");
+        showToast("Tiếp tục");
+        updatePauseUI();
+        runTimerLoop();
+      };
+
+      $("#pauseBtn").onclick = async () => {
+        await resumeAudio();
+        if(app.timer.paused) return resumeTimer();
+        return pauseTimer();
+      };
+
+
+      const stopSession = async ({toSummary=false}={}) => {
+        if(app.timer.running || app.timer.paused){
+          app.timer.running = false;
+          app.timer.paused = false;
+          stopLoop();
+          endCurrentFocusSegment();
+          updatePauseUI();
         }
         await releaseWakeLock();
         if(isFullscreen()) await exitFullscreen();
@@ -1450,6 +1537,7 @@
         $("#noPauseToggle").classList.toggle("on", app.pomo.noPause);
         $("#noPauseToggle").setAttribute("aria-checked", String(app.pomo.noPause));
         showToast(app.pomo.noPause ? "Không tạm dừng: bật" : "Không tạm dừng: tắt");
+        updatePauseUI();
       };
 
       $("#startPomoBtn").onclick = async () => {
