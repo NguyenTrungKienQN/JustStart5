@@ -1,0 +1,1552 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0d12" />
+  <title>5-Min Focus — Bắt đầu trong 5 phút</title>
+
+  <style>
+    :root{
+      --bg:#0b0d12;
+      --text:#e9ecf4;
+      --muted:#aab1c6;
+      --muted2:#7f87a0;
+      --border:rgba(255,255,255,.10);
+      --accent:#7aa2ff;
+      --ok:#9fe6a0;
+      --danger:#ff5d6c;
+      --shadow: 0 20px 60px rgba(0,0,0,.45);
+      --radius: 18px;
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: var(--bg);
+      color: var(--text);
+      overflow:hidden;
+      touch-action: manipulation;
+    }
+
+    @media (prefers-reduced-motion: no-preference){
+      .shell{ animation: shellIn .45s cubic-bezier(.2,.9,.2,1) both; }
+      .homeEnter{ animation: homeIn .45s cubic-bezier(.2,.9,.2,1) both; animation-delay:.05s; }
+      @keyframes shellIn{
+        from{ opacity:0; transform: translateY(10px) scale(.985); }
+        to  { opacity:1; transform: translateY(0) scale(1); }
+      }
+      @keyframes homeIn{
+        from{ opacity:0; transform: translateY(8px); }
+        to  { opacity:1; transform: translateY(0); }
+      }
+    }
+
+    .app{
+      height: 100vh;
+      height: 100dvh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: max(14px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
+               max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+    }
+    .shell{
+      width:min(980px, 100%);
+      height:min(740px, 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      box-shadow: var(--shadow);
+      display:flex;
+      overflow:hidden;
+      position:relative;
+    }
+
+    .left{
+      width: 340px;
+      border-right:1px solid var(--border);
+      background: radial-gradient(1200px 600px at 30% 0%, rgba(122,162,255,.16), transparent 45%),
+                  radial-gradient(900px 500px at 60% 80%, rgba(159,230,160,.10), transparent 55%);
+      padding: 22px;
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .logo{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+    }
+    .dot{
+      width: 14px; height: 14px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 35% 35%, #ffffff, rgba(255,255,255,.15) 35%, rgba(122,162,255,1) 65%);
+      box-shadow: 0 0 30px rgba(122,162,255,.40);
+    }
+    .title{
+      font-weight: 720;
+      letter-spacing:.2px;
+      line-height:1.1;
+    }
+    .subtitle{
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-top:2px;
+    }
+    .iconBtn{
+      width:40px;height:40px;
+      border-radius: 12px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      display:grid;place-items:center;
+      cursor:pointer;
+      transition: transform .08s ease, background .15s ease;
+    }
+    .iconBtn:active{ transform: scale(.98); }
+    .iconBtn:hover{ background: rgba(255,255,255,.06); }
+
+    .hintCard{
+      border:1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(0,0,0,.18);
+      padding: 14px;
+    }
+    .hintCard h4{
+      margin:0 0 8px 0;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing:.2px;
+    }
+    .hintCard p{
+      margin:0;
+      font-size: 13px;
+      color: var(--text);
+      line-height:1.45;
+    }
+
+    .right{
+      flex:1;
+      position:relative;
+      padding: 22px;
+      display:flex;
+      flex-direction:column;
+    }
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom: 14px;
+    }
+    .crumb{
+      font-size: 12.5px;
+      color: var(--muted);
+      user-select:none;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      color: var(--muted);
+      font-size: 12.5px;
+      user-select:none;
+    }
+    .main{
+      flex:1;
+      position:relative;
+      overflow:hidden;
+      border-radius: 16px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.20);
+    }
+
+    .screen{
+      position:absolute;
+      inset:0;
+      padding: 18px;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      display:none;
+      z-index: 1;
+    }
+    .screen.active{ display:block; }
+
+    @media (prefers-reduced-motion: no-preference){
+      .screen.active{ animation: screenIn .18s ease both; }
+      .screen.leaving{ display:block; animation: screenOut .18s ease both; }
+      @keyframes screenIn{
+        from{ opacity:0; transform: translateY(6px); }
+        to  { opacity:1; transform: translateY(0); }
+      }
+      @keyframes screenOut{
+        from{ opacity:1; transform: translateY(0); }
+        to  { opacity:0; transform: translateY(-6px); }
+      }
+    }
+
+    .centerWrap{
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap: 14px;
+      text-align:center;
+      padding: 6px;
+    }
+    .hero{
+      font-size: clamp(22px, 4.2vw, 36px);
+      font-weight: 820;
+      letter-spacing:.2px;
+      margin:0;
+    }
+    .tagline{
+      margin:0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height:1.4;
+      max-width: 52ch;
+    }
+
+    .btnRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+      margin-top: 4px;
+    }
+    .btn{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 14px;
+      min-height: 48px;
+      font-weight: 700;
+      letter-spacing:.2px;
+      cursor:pointer;
+      transition: transform .08s ease, background .15s ease, border-color .15s ease;
+      user-select:none;
+    }
+    .btn:hover{ background: rgba(255,255,255,.08); }
+    .btn:active{ transform: scale(.985); }
+    .btn.primary{
+      background: linear-gradient(180deg, rgba(122,162,255,.95), rgba(122,162,255,.72));
+      border-color: rgba(122,162,255,.75);
+      color: #0b0d12;
+    }
+    .btn.ghost{ background: transparent; }
+    .btn.danger{
+      background: rgba(255,93,108,.12);
+      border-color: rgba(255,93,108,.45);
+      color: var(--text);
+    }
+
+    .form{
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 8px 0 0 0;
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
+    }
+    .field{ display:flex; flex-direction:column; gap:8px; }
+    label{
+      font-size: 12.5px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing:.2px;
+    }
+    input[type="text"], input[type="number"], input[type="range"]{
+      width:100%;
+      outline:none;
+    }
+    input[type="text"], input[type="number"]{
+      padding: 14px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      font-size: 15px;
+    }
+    input[type="text"]:focus, input[type="number"]:focus{
+      border-color: rgba(122,162,255,.65);
+      box-shadow: 0 0 0 4px rgba(122,162,255,.14);
+    }
+
+    .chips{ display:flex; gap:10px; flex-wrap:wrap; }
+    .chip{
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      color: var(--muted);
+      cursor:pointer;
+      user-select:none;
+      font-weight: 650;
+      font-size: 13px;
+      transition: transform .08s ease, background .15s ease, color .15s ease, border-color .15s ease;
+    }
+    .chip:hover{ background: rgba(255,255,255,.06); color: var(--text); }
+    .chip:active{ transform: scale(.99); }
+    .chip.active{
+      background: rgba(122,162,255,.18);
+      border-color: rgba(122,162,255,.55);
+      color: var(--text);
+    }
+
+    .focusShell{
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      gap: 14px;
+      text-align:center;
+      padding: 10px;
+    }
+    .taskLine{
+      max-width: 90%;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing:.2px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      padding: 8px 12px;
+      border-radius: 999px;
+    }
+    .phaseLine{
+      font-size: 12.5px;
+      color: var(--muted2);
+      letter-spacing:.2px;
+    }
+    .timer{
+      font-variant-numeric: tabular-nums;
+      font-weight: 900;
+      letter-spacing: .6px;
+      font-size: clamp(56px, 10vw, 110px);
+      line-height: 1;
+      margin: 6px 0;
+      transform: translateZ(0);
+    }
+    .timer.pulse{ animation: tickPop .22s ease; }
+    .timer.urgent{ animation: urgentPulse .9s ease-in-out infinite; }
+    @keyframes tickPop{ 0%{transform:scale(1)} 45%{transform:scale(1.018)} 100%{transform:scale(1)} }
+    @keyframes urgentPulse{ 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.02);opacity:.92} }
+
+    .micro{ margin:0; color: var(--muted); font-size: 14px; letter-spacing:.2px; }
+    .focusNote{ color: var(--muted2); font-size: 12.5px; max-width: 62ch; line-height:1.45; }
+
+    .exitTiny{
+      position:absolute;
+      top: 10px;
+      right: 10px;
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.02);
+      color: rgba(255,255,255,.72);
+      opacity: .35;
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      transition: opacity .15s ease, transform .08s ease, background .15s ease;
+      user-select:none;
+      z-index: 5;
+    }
+    .exitTiny:hover{ opacity:.75; background: rgba(255,255,255,.05); }
+    .exitTiny:active{ transform: scale(.98); }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .card{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      border-radius: 16px;
+      padding: 14px;
+      cursor:pointer;
+      transition: transform .08s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+      min-height: 92px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .card:hover{ background: rgba(255,255,255,.06); }
+    .card:active{ transform: scale(.99); }
+    .card h3{ margin:0; font-size: 14px; font-weight: 820; letter-spacing:.2px; }
+    .card p{ margin:0; font-size: 12.5px; color: var(--muted); line-height:1.35; }
+    .card.reco{
+      border-color: rgba(159,230,160,.45);
+      background: radial-gradient(600px 240px at 20% 0%, rgba(159,230,160,.13), transparent 50%),
+                  rgba(255,255,255,.03);
+    }
+    .card.selected{
+      border-color: rgba(122,162,255,.70);
+      box-shadow: 0 0 0 4px rgba(122,162,255,.12) inset;
+    }
+
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+    }
+    .row .label{ display:flex; flex-direction:column; gap:2px; }
+    .row .label b{ font-size: 13px; }
+    .row .label span{ font-size: 12.5px; color: var(--muted); }
+
+    .toggle{
+      width: 52px;
+      height: 30px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      position:relative;
+      cursor:pointer;
+      flex: 0 0 auto;
+      transition: transform .08s ease, background .15s ease, border-color .15s ease;
+    }
+    .toggle:active{ transform: scale(.99); }
+    .toggle::after{
+      content:"";
+      position:absolute;
+      top: 4px; left: 4px;
+      width: 22px; height: 22px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.82);
+      transition: transform .18s ease, background .18s ease;
+    }
+    .toggle.on{
+      background: rgba(159,230,160,.18);
+      border-color: rgba(159,230,160,.45);
+    }
+    .toggle.on::after{
+      transform: translateX(22px);
+      background: rgba(159,230,160,.95);
+    }
+
+    .summaryBox{
+      max-width: 720px;
+      margin: 0 auto;
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+      padding-top: 6px;
+    }
+    .kv{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items:center;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+    }
+    .kv .k{ color: var(--muted); font-size: 12.5px; }
+    .kv .v{ font-weight: 820; font-variant-numeric: tabular-nums; }
+
+    .toast{
+      position:absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 14px;
+      background: rgba(0,0,0,.55);
+      border:1px solid rgba(255,255,255,.14);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      max-width: min(92%, 680px);
+      text-align:center;
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .18s ease, transform .18s ease;
+      z-index: 60;
+    }
+    .toast.show{
+      opacity:1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+
+    .modalBackdrop{
+      position:absolute;
+      inset:0;
+      background: rgba(0,0,0,.60);
+      padding: 16px;
+      z-index: 50;
+      display:none;
+      align-items:center;
+      justify-content:center;
+    }
+    .modalBackdrop.show{ display:flex; }
+    .modal{
+      width: min(540px, 100%);
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(15,18,28,.92);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    @media (prefers-reduced-motion: no-preference){
+      .modalBackdrop.show{ animation: modalFade .18s ease both; }
+      .modalBackdrop.show .modal{ animation: modalPop .18s cubic-bezier(.2,.9,.2,1) both; }
+      @keyframes modalFade{ from{opacity:0} to{opacity:1} }
+      @keyframes modalPop{
+        from{ opacity:0; transform: translateY(8px) scale(.98); }
+        to  { opacity:1; transform: translateY(0) scale(1); }
+      }
+    }
+    .modal h2{ margin: 2px 0 6px 0; font-size: 18px; letter-spacing:.2px; }
+    .modal p{ margin:0 0 12px 0; color: var(--muted); font-size: 13.5px; line-height:1.45; }
+
+    body.fullscreenFocus .app{ padding:0; }
+    body.fullscreenFocus .shell{
+      width:100%;
+      height:100%;
+      border-radius: 0;
+      border: none;
+      animation:none;
+    }
+    body.fullscreenFocus .left{ display:none; }
+    body.fullscreenFocus .right{ padding: 0; }
+    body.fullscreenFocus .topbar{ display:none; }
+    body.fullscreenFocus .main{
+      border:none;
+      border-radius:0;
+      background: #07090f;
+    }
+
+    body.fauxFocus .left{ display:none; }
+    body.fauxFocus .shell{ width:100%; height:100%; border-radius:0; border:none; animation:none; }
+    body.fauxFocus .right{ padding:0; }
+    body.fauxFocus .topbar{ display:none; }
+    body.fauxFocus .main{ border:none; border-radius:0; background:#07090f; }
+
+    body.fullscreenFocus .main::before,
+    body.fauxFocus .main::before{
+      content:"";
+      position:absolute;
+      inset:-30%;
+      background:
+        radial-gradient(closest-side at 50% 40%, rgba(122,162,255,.14), transparent 60%),
+        radial-gradient(closest-side at 55% 70%, rgba(159,230,160,.08), transparent 62%);
+      animation: slowDrift 7s ease-in-out infinite alternate;
+      pointer-events:none;
+      z-index: 0;
+    }
+    @keyframes slowDrift{
+      from{ transform: translate3d(-1%, -1%, 0) scale(1.02); }
+      to  { transform: translate3d(1%, 1.5%, 0) scale(1.06); }
+    }
+
+    @media (max-width: 880px){
+      .left{ display:none; }
+      .shell{ height:100%; }
+      .right{ padding: 16px; }
+      .grid{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app" id="app">
+    <div class="shell" id="shell">
+      <aside class="left">
+        <div class="brand">
+          <div class="logo">
+            <div class="dot"></div>
+            <div>
+              <div class="title">5-Min Focus</div>
+              <div class="subtitle">Bắt đầu bằng 1 cam kết nhỏ.</div>
+            </div>
+          </div>
+          <button class="iconBtn" id="openSettingsBtn" title="Cài đặt" aria-label="Cài đặt">⚙️</button>
+        </div>
+
+        <div class="hintCard">
+          <h4>Mẹo nhanh</h4>
+          <p>Nếu máy hay tắt màn hình: bật “Giữ màn hình sáng” (Wake Lock sẽ tự dùng nếu trình duyệt hỗ trợ).</p>
+        </div>
+
+        <div style="margin-top:auto;color:var(--muted2);font-size:12.5px;line-height:1.45">
+          <div>• Vẫn có “Thoát”, nhưng cần xác nhận 2 bước.</div>
+        </div>
+      </aside>
+
+      <main class="right">
+        <div class="topbar">
+          <div class="crumb" id="crumb">Home</div>
+          <div class="pill" id="statusPill">Dark Mode • Ready</div>
+        </div>
+
+        <section class="main" id="main">
+          <div class="screen active" id="screen-home">
+            <div class="centerWrap homeEnter">
+              <h1 class="hero">Bắt đầu trong 5 phút.</h1>
+              <p class="tagline">Bạn chỉ cần cam kết <b>05:00</b>. Sau đó, Pomodoro là lựa chọn.</p>
+              <div class="btnRow">
+                <button class="btn primary" id="goInputBtn">Bắt đầu</button>
+                <button class="btn ghost" id="homeSettingsBtn">Cài đặt</button>
+              </div>
+              <p class="focusNote" style="margin-top:8px">
+                (Mobile) iOS/Safari có thể hạn chế fullscreen. App sẽ tự chuyển sang “Focus Mode” giả lập nếu cần.
+              </p>
+            </div>
+          </div>
+
+          <div class="screen" id="screen-input">
+            <div class="form">
+              <div>
+                <h2 style="margin:0 0 6px 0;font-size:22px;letter-spacing:.2px">Nhập bài tập</h2>
+                <p style="margin:0;color:var(--muted);font-size:13.5px;line-height:1.45">Tên bài tập là bắt buộc.</p>
+              </div>
+
+              <div class="field">
+                <label for="taskName">Tên bài tập (bắt buộc)</label>
+                <input id="taskName" type="text" placeholder='Ví dụ: "Làm đề Toán 15p", "Học 20 từ vựng"' maxlength="80" autocomplete="off" />
+              </div>
+
+              <div class="field">
+                <label>Gợi ý nhanh</label>
+                <div class="chips" id="chips">
+                  <div class="chip" data-chip="Toán">Toán</div>
+                  <div class="chip" data-chip="Văn">Văn</div>
+                  <div class="chip" data-chip="Anh">Anh</div>
+                  <div class="chip" data-chip="Lý">Lý</div>
+                  <div class="chip" data-chip="Hóa">Hóa</div>
+                  <div class="chip" data-chip="Sinh">Sinh</div>
+                </div>
+              </div>
+
+              <div class="btnRow" style="justify-content:flex-start">
+                <button class="btn primary" id="startFiveBtn">Bắt đầu 5 phút</button>
+                <button class="btn" id="backHomeBtn">Quay lại</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="screen" id="screen-fullscreen">
+            <div class="centerWrap">
+              <h2 class="hero" style="font-size: clamp(20px, 3.8vw, 32px);margin:0">Xin quyền Fullscreen</h2>
+              <p class="tagline">Trình duyệt yêu cầu thao tác người dùng để vào toàn màn hình.</p>
+              <div class="btnRow">
+                <button class="btn primary" id="enterFocusBtn">Vào chế độ tập trung</button>
+                <button class="btn ghost" id="fsSkipBtn" title="Fallback nếu fullscreen không hỗ trợ">Nếu không fullscreen được</button>
+              </div>
+              <p class="focusNote" id="fsNote"></p>
+            </div>
+          </div>
+
+          <div class="screen" id="screen-focus">
+            <div class="exitTiny" id="exitBtn" title="Thoát (cần xác nhận)">✕</div>
+            <div class="focusShell">
+              <div class="taskLine" id="focusTask">—</div>
+              <div class="phaseLine" id="focusPhase">Chế độ tập trung</div>
+              <div class="timer" id="timerText">05:00</div>
+              <p class="micro" id="microLine">Chỉ 5 phút thôi.</p>
+              <p class="focusNote" id="focusFooter"></p>
+            </div>
+          </div>
+
+          <div class="screen" id="screen-pomo">
+            <div class="form">
+              <div>
+                <h2 style="margin:0 0 6px 0;font-size:22px;letter-spacing:.2px">Chọn Pomodoro</h2>
+                <p style="margin:0;color:var(--muted);font-size:13.5px;line-height:1.45">Chọn nhanh hoặc tuỳ chỉnh.</p>
+              </div>
+
+              <div class="grid" id="pomoCards">
+                <div class="card reco selected" data-preset="25">
+                  <h3>25 / 5 <span style="color:var(--ok);font-weight:900">• Recommended</span></h3>
+                  <p>Nhịp cơ bản, dễ duy trì.</p>
+                </div>
+                <div class="card" data-preset="50">
+                  <h3>50 / 10</h3>
+                  <p>Hợp bài dài, cần đà.</p>
+                </div>
+                <div class="card" data-preset="custom">
+                  <h3>Tuỳ chỉnh</h3>
+                  <p>Tự chọn Work/Break.</p>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="label">
+                  <b>Không tạm dừng (khuyến nghị)</b>
+                  <span>Work/Break không có nút pause.</span>
+                </div>
+                <div class="toggle on" id="noPauseToggle" role="switch" aria-checked="true"></div>
+              </div>
+
+              <div class="row" id="customRow" style="display:none">
+                <div style="display:flex;gap:10px;flex:1;flex-wrap:wrap">
+                  <div style="flex:1;min-width:140px">
+                    <label style="display:block;margin-bottom:6px">Work (phút)</label>
+                    <input id="customWork" type="number" inputmode="numeric" min="5" max="180" value="25" />
+                  </div>
+                  <div style="flex:1;min-width:140px">
+                    <label style="display:block;margin-bottom:6px">Break (phút)</label>
+                    <input id="customBreak" type="number" inputmode="numeric" min="1" max="60" value="5" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="btnRow" style="justify-content:flex-start">
+                <button class="btn primary" id="startPomoBtn">Bắt đầu Pomodoro</button>
+                <button class="btn" id="pomoBackToSummaryBtn">Không, kết thúc</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="screen" id="screen-summary">
+            <div class="summaryBox">
+              <div>
+                <h2 style="margin:0 0 6px 0;font-size:22px;letter-spacing:.2px">Tổng kết</h2>
+                <p style="margin:0;color:var(--muted);font-size:13.5px;line-height:1.45">Thống kê phiên vừa rồi.</p>
+              </div>
+
+              <div class="kv"><div class="k">Bài tập</div><div class="v" id="sumTask">—</div></div>
+              <div class="kv"><div class="k">Tổng thời gian tập trung</div><div class="v" id="sumFocus">00:00</div></div>
+              <div class="kv"><div class="k">Pomodoro Work đã hoàn thành</div><div class="v" id="sumWorkCount">0</div></div>
+              <div class="kv"><div class="k">Mất tập trung</div><div class="v" id="sumDistractions">0</div></div>
+              <div class="kv"><div class="k">Chi tiết</div><div class="v" id="sumDistractionDetail">—</div></div>
+
+              <div class="btnRow" style="justify-content:flex-start">
+                <button class="btn primary" id="newTaskBtn">Làm bài khác</button>
+                <button class="btn" id="repeatFiveBtn">Lặp lại 5 phút</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="screen" id="screen-settings">
+            <div class="form">
+              <div>
+                <h2 style="margin:0 0 6px 0;font-size:22px;letter-spacing:.2px">Cài đặt</h2>
+                <p style="margin:0;color:var(--muted);font-size:13.5px;line-height:1.45">
+                  Trên mobile, âm thanh thường cần “chạm” trước. Nhạc nền (tuỳ chọn) sẽ phát nhẹ và lặp.
+                </p>
+              </div>
+
+              <div class="row">
+                <div class="label"><b>Rung nhẹ khi hết giờ</b><span>Tuỳ thiết bị/quyền.</span></div>
+                <div class="toggle" id="vibrateToggle" role="switch" aria-checked="false"></div>
+              </div>
+
+              <div class="row">
+                <div class="label"><b>SFX (click / start / end / warn)</b><span>Âm hiệu ứng nho nhỏ.</span></div>
+                <div class="toggle on" id="sfxToggle" role="switch" aria-checked="true"></div>
+              </div>
+
+              <div class="row">
+                <div class="label"><b>Âm báo nhỏ khi hết giờ</b><span>Chime ngắn (WebAudio).</span></div>
+                <div class="toggle" id="soundToggle" role="switch" aria-checked="false"></div>
+              </div>
+
+              <div class="row">
+                <div class="label">
+                  <b>Âm thanh nền (nhẹ)</b>
+                  <span id="bgmMeta">SolusLunes – “Endless Space” (CC BY 3.0).</span>
+                </div>
+                <div class="toggle" id="bgmToggle" role="switch" aria-checked="false"></div>
+              </div>
+
+              <div class="row" id="bgmVolRow" style="display:none">
+                <div class="label">
+                  <b>Âm lượng nền</b>
+                  <span>Nhỏ thôi cho dễ tập trung.</span>
+                </div>
+                <div style="min-width:220px">
+                  <input id="bgmVol" type="range" min="0" max="100" value="18" />
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="label"><b>Giữ màn hình sáng (Wake Lock)</b><span>Nếu không hỗ trợ: app sẽ nhắc.</span></div>
+                <div class="toggle on" id="wakeToggle" role="switch" aria-checked="true"></div>
+              </div>
+
+              <div class="row">
+                <div class="label"><b>Cảnh báo khi mất tập trung</b><span>Nhẹ: toast • Mạnh: toast + rung.</span></div>
+                <div style="display:flex;gap:10px">
+                  <button class="btn" id="warnLightBtn">Nhẹ</button>
+                  <button class="btn" id="warnStrongBtn">Mạnh</button>
+                </div>
+              </div>
+
+              <div class="btnRow" style="justify-content:flex-start">
+                <button class="btn primary" id="closeSettingsBtn">Xong</button>
+              </div>
+
+              <p class="focusNote" style="margin:0">
+                * Nhạc nền: “SolusLunes – Solus- Endless Space” (CC BY 3.0). :contentReference[oaicite:1]{index=1}
+              </p>
+            </div>
+          </div>
+
+          <div class="toast" id="toast">—</div>
+        </section>
+      </main>
+
+      <div class="modalBackdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="modal">
+          <h2 id="modalTitle">—</h2>
+          <p id="modalBody">—</p>
+          <div class="btnRow" id="modalActions" style="justify-content:flex-end"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const $ = (s, r=document) => r.querySelector(s);
+      const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+      const clamp = (n,a,b) => Math.max(a, Math.min(b,n));
+      const now = () => Date.now();
+
+      const msToMMSS = (ms) => {
+        const s = Math.ceil(ms / 1000);
+        const m = Math.floor(s / 60);
+        const r = s % 60;
+        return String(m).padStart(2,'0') + ':' + String(r).padStart(2,'0');
+      };
+
+      const screens = {
+        home: $("#screen-home"),
+        input: $("#screen-input"),
+        fullscreen: $("#screen-fullscreen"),
+        focus: $("#screen-focus"),
+        pomo: $("#screen-pomo"),
+        summary: $("#screen-summary"),
+        settings: $("#screen-settings"),
+      };
+
+      const crumb = $("#crumb");
+      const statusPill = $("#statusPill");
+      const toast = $("#toast");
+
+      // ===== Background music source (Wikimedia Commons, CC BY 3.0) =====
+      const BGM_URL = "https://upload.wikimedia.org/wikipedia/commons/0/05/SolusLunes_-_Solus-_Endless_Space_%28cc-by-3.0%29.mp3";
+
+      const app = {
+        active: "home",
+        taskName: "",
+        mode: "none", // five | pomoWork | pomoBreak | none
+        timer: { running:false, startMs:0, endMs:0, durationMs:0 },
+        rafId: null,
+        _lastSec: null,
+        pomo: { workMin:25, breakMin:5, noPause:true, workIndex:0 },
+        focusAccumMs: 0,
+        lastFocusStartMs: 0,
+        lastFocusPlannedMs: 0,
+        distractions: { total:0, tabHidden:0, exitFullscreen:0, blur:0 },
+
+        // prefs
+        pref: {
+          vibrate:false,
+          sound:false,       // end chime
+          sfx:true,          // UI SFX
+          bgm:false,         // background music
+          bgmVol:0.18,       // 0..1
+          wakeLock:true,
+          warnStrength:"light"
+        },
+
+        wakeLockObj: null,
+        audioCtx: null,
+
+        // bgm runtime
+        bgmEl: null,
+        bgmReady: false,
+      };
+
+      // ===== Screen switching =====
+      const setScreen = (name) => {
+        const next = screens[name];
+        const cur = screens[app.active];
+        if (!next) return;
+
+        if (cur && cur !== next) {
+          cur.classList.remove("active");
+          cur.classList.add("leaving");
+          setTimeout(() => cur.classList.remove("leaving"), 200);
+        }
+        next.classList.add("active");
+        app.active = name;
+
+        crumb.textContent = ({
+          home:"Home",
+          input:"Nhập bài tập",
+          fullscreen:"Xin quyền Fullscreen",
+          focus:"Focus",
+          pomo:"Chọn Pomodoro",
+          summary:"Tổng kết",
+          settings:"Cài đặt"
+        })[name] || name;
+
+        if (!document.querySelector(".screen.active")) {
+          screens.home.classList.add("active");
+          app.active = "home";
+        }
+      };
+
+      // ===== Toast =====
+      let toastTimer = null;
+      const showToast = (msg) => {
+        toast.textContent = msg;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 1600);
+      };
+
+      // ===== Modal =====
+      const modalBackdrop = $("#modalBackdrop");
+      const modalTitle = $("#modalTitle");
+      const modalBody = $("#modalBody");
+      const modalActions = $("#modalActions");
+
+      const showModal = ({title, body, actions}) => {
+        modalTitle.textContent = title;
+        modalBody.textContent = body;
+        modalActions.innerHTML = "";
+        actions.forEach(a => {
+          const b = document.createElement("button");
+          b.className = "btn " + (a.kind || "");
+          b.textContent = a.text;
+          b.onclick = () => { hideModal(); a.onClick && a.onClick(); };
+          modalActions.appendChild(b);
+        });
+        modalBackdrop.classList.add("show");
+        modalBackdrop.setAttribute("aria-hidden", "false");
+      };
+      const hideModal = () => {
+        modalBackdrop.classList.remove("show");
+        modalBackdrop.setAttribute("aria-hidden", "true");
+      };
+      modalBackdrop.addEventListener("click", (e) => { if (e.target === modalBackdrop) hideModal(); });
+
+      // ===== Pref =====
+      const PREF_KEY = "fiveMinFocus.pref.v5";
+      const loadPref = () => {
+        try{
+          const p = JSON.parse(localStorage.getItem(PREF_KEY)||"null");
+          if(p) app.pref = {...app.pref, ...p};
+        }catch{}
+      };
+      const savePref = () => { try{ localStorage.setItem(PREF_KEY, JSON.stringify(app.pref)); }catch{} };
+
+      // ===== Audio engine (SFX + chime) =====
+      const ensureAudio = () => {
+        if (app.audioCtx) return app.audioCtx;
+        try{ app.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch{}
+        return app.audioCtx;
+      };
+      const resumeAudio = async () => {
+        const ctx = ensureAudio();
+        try{ if(ctx && ctx.state === "suspended") await ctx.resume(); }catch{}
+      };
+
+      // light synth helper
+      const playTone = async ({freq=660, dur=0.06, type="sine", gain=0.08, pan=0}) => {
+        const ctx = ensureAudio();
+        if(!ctx) return;
+        await resumeAudio();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        const p = (ctx.createStereoPanner ? ctx.createStereoPanner() : null);
+
+        o.type = type;
+        o.frequency.value = freq;
+        g.gain.value = 0.0001;
+
+        o.connect(g);
+        if(p){ p.pan.value = pan; g.connect(p); p.connect(ctx.destination); }
+        else{ g.connect(ctx.destination); }
+
+        const t = ctx.currentTime;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(gain, t + 0.008);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+        o.start(t);
+        o.stop(t + dur + 0.02);
+      };
+
+      const sfx = async (name) => {
+        if(!app.pref.sfx) return;
+        if(name === "click"){
+          playTone({freq: 740, dur: 0.035, type:"triangle", gain:0.045});
+        }else if(name === "nav"){
+          playTone({freq: 520, dur: 0.05, type:"sine", gain:0.05});
+        }else if(name === "start"){
+          await playTone({freq: 520, dur: 0.06, type:"sine", gain:0.06, pan:-0.08});
+          await playTone({freq: 780, dur: 0.06, type:"sine", gain:0.06, pan: 0.08});
+        }else if(name === "warn"){
+          await playTone({freq: 280, dur: 0.07, type:"sawtooth", gain:0.04});
+        }else if(name === "end"){
+          await playTone({freq: 880, dur: 0.10, type:"sine", gain:0.08, pan:-0.05});
+          await playTone({freq: 1320, dur: 0.12, type:"sine", gain:0.06, pan: 0.05});
+        }
+      };
+
+      const beep = async () => {
+        if(!app.pref.sound) return;
+        await sfx("end");
+      };
+
+      // ===== Background music =====
+      const initBgm = () => {
+        if(app.bgmEl) return;
+        const a = new Audio();
+        a.src = BGM_URL;
+        a.loop = true;
+        a.preload = "auto";
+        a.volume = clamp(app.pref.bgmVol, 0, 1);
+        app.bgmEl = a;
+
+        a.addEventListener("canplay", () => app.bgmReady = true, {once:true});
+      };
+
+      const tryPlayBgm = async (fromUserGesture=false) => {
+        if(!app.pref.bgm) return;
+        initBgm();
+        if(!app.bgmEl) return;
+        app.bgmEl.volume = clamp(app.pref.bgmVol, 0, 1);
+
+        try{
+          // nếu trình duyệt chặn autoplay thì cần user gesture -> bật bằng click/toggle
+          await app.bgmEl.play();
+          showToast("Nhạc nền: bật");
+        }catch(e){
+          if(fromUserGesture){
+            showToast("Không bật được nhạc nền (trình duyệt chặn).");
+          }else{
+            showToast("Chạm 1 lần để bật nhạc nền.");
+          }
+        }
+      };
+
+      const stopBgm = () => {
+        if(!app.bgmEl) return;
+        try{ app.bgmEl.pause(); }catch{}
+        showToast("Nhạc nền: tắt");
+      };
+
+      // ===== Vibrate =====
+      const vibrate = (pattern=25) => { if(app.pref.vibrate && navigator.vibrate) navigator.vibrate(pattern); };
+
+      // ===== Wake Lock =====
+      const canWakeLock = () => "wakeLock" in navigator;
+      const requestWakeLock = async () => {
+        if(!app.pref.wakeLock || !canWakeLock()) return;
+        try{
+          app.wakeLockObj = await navigator.wakeLock.request("screen");
+          app.wakeLockObj.addEventListener("release", () => app.wakeLockObj=null);
+        }catch{}
+      };
+      const releaseWakeLock = async () => {
+        try{ if(app.wakeLockObj){ await app.wakeLockObj.release(); app.wakeLockObj=null; } }catch{}
+      };
+      document.addEventListener("visibilitychange", () => {
+        if(document.visibilityState==="visible" && app.timer.running) requestWakeLock();
+      });
+
+      // ===== Fullscreen =====
+      const isFullscreen = () => !!document.fullscreenElement;
+      const canFullscreen = () => !!document.documentElement.requestFullscreen;
+      const enterFullscreen = async () => {
+        if(!canFullscreen()) return false;
+        try{ await document.documentElement.requestFullscreen(); return true; }catch{ return false; }
+      };
+      const exitFullscreen = async () => { try{ if(document.exitFullscreen) await document.exitFullscreen(); }catch{} };
+
+      const setFocusFrame = (kind) => {
+        document.body.classList.toggle("fullscreenFocus", kind === "fullscreen");
+        document.body.classList.toggle("fauxFocus", kind === "faux");
+      };
+
+      // ===== Distraction =====
+      const addDistraction = async (type) => {
+        app.distractions.total++;
+        if(app.distractions[type] != null) app.distractions[type]++;
+
+        await sfx("warn");
+        if(app.pref.warnStrength === "strong"){
+          vibrate(30);
+          showToast("Mất tập trung một chút — quay lại nhé.");
+        }else{
+          showToast("Bạn vừa rời khỏi phiên tập trung.");
+        }
+      };
+
+      document.addEventListener("visibilitychange", () => {
+        if(app.timer.running && document.visibilityState==="hidden") addDistraction("tabHidden");
+      });
+      window.addEventListener("blur", () => { if(app.timer.running) addDistraction("blur"); });
+      document.addEventListener("fullscreenchange", () => {
+        if(!app.timer.running) return;
+        if(app.mode !== "none" && !isFullscreen() && document.body.classList.contains("fullscreenFocus")){
+          addDistraction("exitFullscreen");
+          setFocusFrame("faux");
+          $("#focusFooter").textContent = "Fullscreen đã tắt. App chuyển sang Focus Mode giả lập.";
+        }
+      });
+
+      // ===== Accounting =====
+      const endCurrentFocusSegment = () => {
+        if(app.mode === "five" || app.mode === "pomoWork"){
+          const elapsed = clamp(now() - app.lastFocusStartMs, 0, app.lastFocusPlannedMs);
+          app.focusAccumMs += elapsed;
+        }
+        app.lastFocusStartMs = 0;
+        app.lastFocusPlannedMs = 0;
+      };
+      const stopLoop = () => { if(app.rafId) cancelAnimationFrame(app.rafId); app.rafId=null; };
+
+      const updateStatusPill = () => {
+        if(!app.timer.running){ statusPill.textContent = "Dark Mode • Ready"; return; }
+        statusPill.textContent = `Dark Mode • ${isFullscreen() ? "Fullscreen" : "Focus Mode"}`;
+      };
+
+      // ===== Timer =====
+      const startTimer = ({mode, durationMs, onEnd}) => {
+        app.mode = mode;
+        app.timer.running = true;
+        app.timer.startMs = now();
+        app.timer.durationMs = durationMs;
+        app.timer.endMs = app.timer.startMs + durationMs;
+        app._lastSec = null;
+
+        if(mode === "five" || mode === "pomoWork"){
+          app.lastFocusStartMs = app.timer.startMs;
+          app.lastFocusPlannedMs = durationMs;
+        }else{
+          app.lastFocusStartMs = 0;
+          app.lastFocusPlannedMs = 0;
+        }
+
+        const timerEl = $("#timerText");
+
+        const tick = () => {
+          const remain = Math.max(0, app.timer.endMs - now());
+          timerEl.textContent = msToMMSS(remain);
+
+          const sec = Math.ceil(remain / 1000);
+          if(app._lastSec !== sec){
+            app._lastSec = sec;
+            timerEl.classList.remove("pulse");
+            void timerEl.offsetWidth;
+            timerEl.classList.add("pulse");
+          }
+          if(remain > 0 && remain <= 10_000) timerEl.classList.add("urgent");
+          else timerEl.classList.remove("urgent");
+
+          updateStatusPill();
+
+          if(remain <= 0){
+            app.timer.running = false;
+            timerEl.classList.remove("urgent");
+            stopLoop();
+            endCurrentFocusSegment();
+            onEnd && onEnd();
+            return;
+          }
+          app.rafId = requestAnimationFrame(tick);
+        };
+
+        stopLoop();
+        tick();
+      };
+
+      const stopSession = async ({toSummary=false}={}) => {
+        if(app.timer.running){
+          app.timer.running = false;
+          stopLoop();
+          endCurrentFocusSegment();
+        }
+        await releaseWakeLock();
+        if(isFullscreen()) await exitFullscreen();
+        setFocusFrame("off");
+        updateStatusPill();
+        if(toSummary) goSummary();
+      };
+
+      const resetSessionStats = () => {
+        app.focusAccumMs = 0;
+        app.pomo.workIndex = 0;
+        app.distractions = { total:0, tabHidden:0, exitFullscreen:0, blur:0 };
+      };
+
+      // ===== Flow =====
+      const requireTask = () => {
+        const val = $("#taskName").value.trim();
+        if(!val){
+          showToast("Bạn cần nhập tên bài tập trước.");
+          $("#taskName").focus();
+          return false;
+        }
+        app.taskName = val;
+        return true;
+      };
+
+      const goFullscreenStep = async () => {
+        await sfx("nav");
+        setScreen("fullscreen");
+        $("#fsNote").textContent = !canFullscreen()
+          ? "Trình duyệt không hỗ trợ Fullscreen API. Bạn vẫn có thể dùng Focus Mode giả lập."
+          : "Mẹo: bật “Không tắt màn hình” nếu bạn hay bị tắt màn hình khi học.";
+      };
+
+      const enterFocusUI = async (wantFullscreen=true) => {
+        setScreen("focus");
+        $("#focusTask").textContent = app.taskName || "—";
+
+        if(wantFullscreen){
+          const ok = await enterFullscreen();
+          if(ok){
+            setFocusFrame("fullscreen");
+            $("#focusFooter").textContent = (app.pref.wakeLock && canWakeLock())
+              ? "Đang giữ màn hình sáng (nếu trình duyệt cho phép)."
+              : "Nếu màn hình hay tắt: bật chế độ không tắt màn hình trong cài đặt máy.";
+          }else{
+            setFocusFrame("faux");
+            $("#focusFooter").textContent = "Không vào fullscreen được. App đang dùng Focus Mode giả lập.";
+          }
+        }else{
+          setFocusFrame("faux");
+          $("#focusFooter").textContent = "Focus Mode giả lập đang bật.";
+        }
+
+        await requestWakeLock();
+        if(app.pref.wakeLock && !canWakeLock()){
+          $("#focusFooter").textContent = "Thiết bị không hỗ trợ Wake Lock. Gợi ý: bật “Không tắt màn hình” trong cài đặt máy.";
+        }
+      };
+
+      const askPomodoro = async () => {
+        await beep(); // chime end (optional)
+        vibrate(25);
+        showModal({
+          title: "Bạn đã bắt đầu được rồi.",
+          body: "Tiếp tục theo Pomodoro chứ?",
+          actions: [
+            { text:"Có, bắt đầu Pomodoro", kind:"primary", onClick: () => goPomoSelect() },
+            { text:"Không, kết thúc", kind:"ghost", onClick: () => stopSession({toSummary:true}) }
+          ]
+        });
+      };
+
+      const goPomoSelect = async () => {
+        if(isFullscreen()) await exitFullscreen();
+        setFocusFrame("off");
+        await sfx("nav");
+        setScreen("pomo");
+        updateStatusPill();
+      };
+
+      const goSummary = async () => {
+        setFocusFrame("off");
+        await sfx("nav");
+        setScreen("summary");
+
+        $("#sumTask").textContent = app.taskName || "—";
+        $("#sumFocus").textContent = msToMMSS(app.focusAccumMs);
+        $("#sumWorkCount").textContent = String(app.pomo.workIndex || 0);
+        $("#sumDistractions").textContent = String(app.distractions.total || 0);
+        $("#sumDistractionDetail").textContent =
+          `Tab: ${app.distractions.tabHidden} • Fullscreen: ${app.distractions.exitFullscreen} • Blur: ${app.distractions.blur}`;
+
+        updateStatusPill();
+      };
+
+      // Pomodoro
+      let selectedPreset = "25";
+      const updatePomoCardUI = () => {
+        $$("#pomoCards .card").forEach(c => c.classList.toggle("selected", c.dataset.preset === selectedPreset));
+        $("#customRow").style.display = (selectedPreset === "custom") ? "block" : "none";
+      };
+      const setPomoPreset = (preset) => {
+        if(preset === "25"){ app.pomo.workMin = 25; app.pomo.breakMin = 5; }
+        if(preset === "50"){ app.pomo.workMin = 50; app.pomo.breakMin = 10; }
+        if(preset === "custom"){
+          const w = parseInt($("#customWork").value || "25", 10);
+          const b = parseInt($("#customBreak").value || "5", 10);
+          app.pomo.workMin = clamp(w, 5, 180);
+          app.pomo.breakMin = clamp(b, 1, 60);
+        }
+      };
+
+      const startPomoWork = async () => {
+        await enterFocusUI(true);
+        $("#focusPhase").textContent = `Pomodoro • Work #${app.pomo.workIndex + 1}`;
+        $("#microLine").textContent = "Giữ nhịp. Làm một hiệp thôi.";
+        await sfx("start");
+        startTimer({
+          mode:"pomoWork",
+          durationMs: app.pomo.workMin * 60 * 1000,
+          onEnd: async () => {
+            app.pomo.workIndex++;
+            await beep();
+            vibrate(25);
+            await startPomoBreak();
+          }
+        });
+      };
+
+      const startPomoBreak = async () => {
+        await enterFocusUI(true);
+        $("#focusPhase").textContent = "Pomodoro • Break";
+        $("#microLine").textContent = "Uống nước, đứng dậy 1 phút.";
+        await sfx("nav");
+        startTimer({
+          mode:"pomoBreak",
+          durationMs: app.pomo.breakMin * 60 * 1000,
+          onEnd: async () => {
+            await beep();
+            vibrate(25);
+            showModal({
+              title:"Hết giờ nghỉ.",
+              body:"Bạn muốn làm tiếp hiệp nữa không?",
+              actions:[
+                { text:"Có, làm tiếp", kind:"primary", onClick: () => startPomoWork() },
+                { text:"Không, kết thúc", kind:"ghost", onClick: () => stopSession({toSummary:true}) }
+              ]
+            });
+          }
+        });
+      };
+
+      // ===== Settings UI =====
+      const syncSettingsUI = () => {
+        $("#vibrateToggle").classList.toggle("on", app.pref.vibrate);
+        $("#soundToggle").classList.toggle("on", app.pref.sound);
+        $("#sfxToggle").classList.toggle("on", app.pref.sfx);
+
+        $("#bgmToggle").classList.toggle("on", app.pref.bgm);
+        $("#bgmToggle").setAttribute("aria-checked", String(app.pref.bgm));
+        $("#bgmVolRow").style.display = app.pref.bgm ? "flex" : "none";
+        $("#bgmVol").value = String(Math.round(clamp(app.pref.bgmVol,0,1)*100));
+
+        $("#wakeToggle").classList.toggle("on", app.pref.wakeLock);
+        $("#warnLightBtn").classList.toggle("primary", app.pref.warnStrength === "light");
+        $("#warnStrongBtn").classList.toggle("danger", app.pref.warnStrength === "strong");
+      };
+
+      // ===== Global click SFX (nhỏ, vui tai) =====
+      document.addEventListener("click", async (e) => {
+        const t = e.target;
+        if(t.closest("button,.chip,.card,.toggle")){
+          await resumeAudio();
+          sfx("click");
+          // nếu user bật bgm nhưng autoplay bị chặn -> click này là user gesture, thử play lại
+          if(app.pref.bgm) tryPlayBgm(false);
+        }
+      }, {capture:true});
+
+      // ===== Events =====
+      $("#goInputBtn").onclick = async () => { await sfx("nav"); setScreen("input"); setTimeout(()=>$("#taskName")?.focus(), 60); };
+      $("#backHomeBtn").onclick = async () => { await sfx("nav"); setScreen("home"); };
+
+      $("#homeSettingsBtn").onclick = async () => { await sfx("nav"); setScreen("settings"); syncSettingsUI(); };
+      $("#openSettingsBtn").onclick = async () => { await sfx("nav"); setScreen("settings"); syncSettingsUI(); };
+
+      $$("#chips .chip").forEach(ch => {
+        ch.onclick = () => {
+          $$("#chips .chip").forEach(x => x.classList.remove("active"));
+          ch.classList.add("active");
+          const input = $("#taskName");
+          if(input && !input.value.trim()){
+            input.value = `Học ${ch.dataset.chip}`;
+            input.focus();
+            input.setSelectionRange(input.value.length, input.value.length);
+          }
+        };
+      });
+
+      $("#taskName").addEventListener("keydown", (e) => {
+        if(e.key==="Enter"){ e.preventDefault(); $("#startFiveBtn").click(); }
+      });
+
+      $("#startFiveBtn").onclick = async () => {
+        await resumeAudio();
+        if(!requireTask()) return;
+        resetSessionStats();
+        await goFullscreenStep();
+      };
+
+      $("#enterFocusBtn").onclick = async () => {
+        await resumeAudio();
+        await enterFocusUI(true);
+        $("#focusPhase").textContent = "Chế độ tập trung • 5 phút";
+        $("#microLine").textContent = "Chỉ 5 phút thôi.";
+        await sfx("start");
+        startTimer({ mode:"five", durationMs: 5*60*1000, onEnd: askPomodoro });
+      };
+
+      $("#fsSkipBtn").onclick = async () => {
+        await resumeAudio();
+        await enterFocusUI(false);
+        $("#focusPhase").textContent = "Chế độ tập trung • 5 phút";
+        $("#microLine").textContent = "Chỉ 5 phút thôi.";
+        await sfx("start");
+        startTimer({ mode:"five", durationMs: 5*60*1000, onEnd: askPomodoro });
+      };
+
+      $("#exitBtn").onclick = () => {
+        if(!app.timer.running){ stopSession({toSummary:true}); return; }
+        showModal({
+          title:"Thoát phiên tập trung?",
+          body:"Nếu thoát, app sẽ tổng kết phiên hiện tại.",
+          actions:[
+            { text:"Tiếp tục", kind:"primary", onClick: () => {} },
+            { text:"Thoát", kind:"danger", onClick: () => stopSession({toSummary:true}) }
+          ]
+        });
+      };
+
+      $$("#pomoCards .card").forEach(c => {
+        c.onclick = () => {
+          selectedPreset = c.dataset.preset;
+          updatePomoCardUI();
+          if(selectedPreset !== "custom"){
+            if(selectedPreset === "25"){ $("#customWork").value = 25; $("#customBreak").value = 5; }
+            if(selectedPreset === "50"){ $("#customWork").value = 50; $("#customBreak").value = 10; }
+          }
+        };
+      });
+
+      $("#noPauseToggle").onclick = async () => {
+        app.pomo.noPause = !app.pomo.noPause;
+        $("#noPauseToggle").classList.toggle("on", app.pomo.noPause);
+        $("#noPauseToggle").setAttribute("aria-checked", String(app.pomo.noPause));
+        showToast(app.pomo.noPause ? "Không tạm dừng: bật" : "Không tạm dừng: tắt");
+      };
+
+      $("#startPomoBtn").onclick = async () => {
+        if(selectedPreset === "custom"){
+          $("#customWork").value = clamp(parseInt($("#customWork").value||"25",10), 5, 180);
+          $("#customBreak").value = clamp(parseInt($("#customBreak").value||"5",10), 1, 60);
+        }
+        setPomoPreset(selectedPreset);
+        await startPomoWork();
+      };
+
+      $("#pomoBackToSummaryBtn").onclick = () => stopSession({toSummary:true});
+
+      $("#newTaskBtn").onclick = async () => {
+        await stopSession({toSummary:false});
+        $("#taskName").value = "";
+        $$("#chips .chip").forEach(x => x.classList.remove("active"));
+        app.taskName = "";
+        await sfx("nav");
+        setScreen("input");
+        setTimeout(()=>$("#taskName")?.focus(), 60);
+      };
+
+      $("#repeatFiveBtn").onclick = async () => {
+        await stopSession({toSummary:false});
+        resetSessionStats();
+        await goFullscreenStep();
+      };
+
+      // ===== Settings toggles =====
+      $("#vibrateToggle").onclick = () => { app.pref.vibrate=!app.pref.vibrate; syncSettingsUI(); savePref(); vibrate(20); };
+
+      $("#sfxToggle").onclick = () => {
+        app.pref.sfx = !app.pref.sfx;
+        syncSettingsUI(); savePref();
+        showToast(app.pref.sfx ? "SFX: bật" : "SFX: tắt");
+      };
+
+      $("#soundToggle").onclick = async () => {
+        app.pref.sound=!app.pref.sound;
+        syncSettingsUI(); savePref();
+        await resumeAudio();
+        if(app.pref.sound) sfx("end");
+      };
+
+      $("#bgmToggle").onclick = async () => {
+        app.pref.bgm = !app.pref.bgm;
+        syncSettingsUI(); savePref();
+        await resumeAudio();
+        if(app.pref.bgm){
+          // user gesture -> có thể play ngay
+          await tryPlayBgm(true);
+        }else{
+          stopBgm();
+        }
+      };
+
+      $("#bgmVol").addEventListener("input", () => {
+        const v = clamp(parseInt($("#bgmVol").value||"18",10), 0, 100) / 100;
+        app.pref.bgmVol = v;
+        savePref();
+        if(app.bgmEl) app.bgmEl.volume = v;
+      });
+
+      $("#wakeToggle").onclick = () => { app.pref.wakeLock=!app.pref.wakeLock; syncSettingsUI(); savePref(); showToast(app.pref.wakeLock?"Wake Lock: bật":"Wake Lock: tắt"); };
+      $("#warnLightBtn").onclick = () => { app.pref.warnStrength="light"; syncSettingsUI(); savePref(); showToast("Cảnh báo: nhẹ"); };
+      $("#warnStrongBtn").onclick = () => { app.pref.warnStrength="strong"; syncSettingsUI(); savePref(); showToast("Cảnh báo: mạnh"); };
+      $("#closeSettingsBtn").onclick = async () => { await sfx("nav"); setScreen("home"); };
+
+      // ===== Init =====
+      loadPref();
+      syncSettingsUI();
+      setScreen("home");
+      updateStatusPill();
+
+      // prepare bgm if enabled (but don't force autoplay)
+      if(app.pref.bgm){
+        initBgm();
+        // sẽ thử phát khi có click đầu tiên
+        showToast("Nhạc nền đã bật — chạm 1 lần để phát.");
+      }
+
+      // ===== Hard failsafe =====
+      const recoverToHome = (reason) => {
+        console.error("[Recover]", reason);
+        showToast("Có lỗi nhỏ — quay về Home.");
+        setFocusFrame("off");
+        hideModal();
+        setScreen("home");
+      };
+      window.addEventListener("error", (e) => recoverToHome(e?.message || "error"));
+      window.addEventListener("unhandledrejection", (e) => recoverToHome(e?.reason || "promise"));
+
+      window.addEventListener("beforeunload", () => {
+        if(app.wakeLockObj){ try{ app.wakeLockObj.release(); }catch{} }
+      });
+    })();
+  </script>
+</body>
+</html>
